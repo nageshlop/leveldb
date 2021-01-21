@@ -1,5 +1,8 @@
 language: cpp
-
+arch:
+  - amd64
+  - ppc64le
+  
 script: ulimit -n 2048 && make check
 
 compiler: gcc
