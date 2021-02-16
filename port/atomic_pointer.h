@@ -35,6 +35,8 @@
 #elif defined(_M_IX86) || defined(__i386__) || defined(__i386)
 #define ARCH_CPU_X86_FAMILY 1
 #elif defined(__ARMEL__)
+#define ARCH_CPU_ARM64_FAMILY 1
+#elif defined(__ppc__) || defined(__powerpc__) || defined(__powerpc64__)
 #define ARCH_CPU_ARM_FAMILY 1
 #endif
 
@@ -46,6 +48,16 @@ namespace port {
 #if defined(OS_WIN) && defined(COMPILER_MSVC) && defined(ARCH_CPU_X86_FAMILY)
 // windows.h already provides a MemoryBarrier(void) macro
 // http://msdn.microsoft.com/en-us/library/ms684208(v=vs.85).aspx
+#define LEVELDB_HAVE_MEMORY_BARRIER
+
+// PPC
+#elif defined(ARCH_CPU_PPC_FAMILY) && defined(__GNUC__)
+inline void MemoryBarrier() {
+  // TODO for some powerpc expert: is there a cheaper suitable variant?
+  // Perhaps by having separate barriers for acquire and release ops.
+  asm volatile("sync" : : : "memory");
+}
+
 #define LEVELDB_HAVE_MEMORY_BARRIER
 
 // Gcc on x86
@@ -147,6 +159,7 @@ class AtomicPointer {
 #undef LEVELDB_HAVE_MEMORY_BARRIER
 #undef ARCH_CPU_X86_FAMILY
 #undef ARCH_CPU_ARM_FAMILY
+#undef ARCH_CPU_PPC_FAMILY
 
 }  // namespace port
 }  // namespace leveldb
